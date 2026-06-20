@@ -151,9 +151,15 @@
         
         if (oldRows !== rows2d || oldCols !== cols) {
           var newGrid = makeEmpty2dGrid(cols, rows2d);
-          for (var r = 0; r < Math.min(oldRows, rows2d); r++) {
-            for (var c = 0; c < Math.min(oldCols, cols); c++) {
-              newGrid[r][c] = grid[r][c];
+          var rowOffset = Math.floor((oldRows - rows2d) / 2);
+          var colOffset = Math.floor((oldCols - cols) / 2);
+          for (var r = 0; r < rows2d; r++) {
+            var srcR = r + rowOffset;
+            if (srcR < 0 || srcR >= oldRows) continue;
+            for (var c = 0; c < cols; c++) {
+              var srcC = c + colOffset;
+              if (srcC < 0 || srcC >= oldCols) continue;
+              newGrid[r][c] = grid[srcR][srcC];
             }
           }
           canvas._grid2d = newGrid;
