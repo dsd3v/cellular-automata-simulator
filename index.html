@@ -30,7 +30,8 @@
                     <input type="color"id="cells-color-picker"value="#ffffff">
                 </div>
                 <div class="control-group settings-1d">
-                    <label for="rule-input"><b>Rule Number</b> [0-255]: <input type="number"id="rule-input"min="0"max="255"step="1"value="50"onchange="if(this.value==''){this.value=50;}else{this.value=Math.max(0,Math.min(255,parseInt(this.value)||0));}"></label>
+                    <div id="cg-label"><b>Rule Number: </b>[0-255]</div>
+                    <input type="number"id="rule-input"min="0"max="255"step="1"value="50"onchange="if(this.value==''){this.value=50;}else{this.value=Math.max(0,Math.min(255,parseInt(this.value)||0));}">
                 </div>
                 <div class="control-group settings-1d">
                     <div id="cg-label"><b>Starting Generation:</b></div>
