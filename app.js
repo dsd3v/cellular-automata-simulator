@@ -1,8 +1,9 @@
 (function () {
-  if (sessionStorage.getItem('redirectPath')) {
+  var redirectPath = sessionStorage.getItem('redirectPath');
+  if (redirectPath) {
     sessionStorage.removeItem('redirectPath');
-  }
-  if (
+    window.history.replaceState(null, null, redirectPath);
+  } else if (
     !window.location.pathname
       .toLowerCase()
       .startsWith('/cellular-automata-simulator')
