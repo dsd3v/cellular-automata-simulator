@@ -2,8 +2,8 @@
   if (sessionStorage.getItem('redirectPath')) {
     sessionStorage.removeItem('redirectPath');
   }
-  if (window.location.pathname !== '/') {
-    window.history.replaceState(null, null, '/');
+  if (window.location.pathname !== '/cellular-automata-simulator') {
+    window.history.replaceState(null, null, '/cellular-automata-simulator');
   }
 
   var default1d = {
