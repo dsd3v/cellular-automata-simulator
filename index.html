@@ -1,0 +1,81 @@
+<!doctype html><html lang="en">
+    <head>
+        <meta charset="UTF-8"content="width=device-width,initial-scale=1.0"name="viewport"/>
+        <title>Cellular Automata Simulator</title>
+        <link rel="stylesheet"href="styles.css">
+        <script>
+            var applyColorTheme=()=>{
+                var hour=new Date().getHours();
+                if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark-theme');}
+                else if(window.matchMedia('(prefers-color-scheme:dark)').matches||hour<5||hour>=20){document.documentElement.classList.add('dark-theme');}
+                else{document.documentElement.classList.remove('dark-theme');}
+            };
+            applyColorTheme();
+            window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change',applyColorTheme);
+        </script>
+    </head>
+    <body>
+        <div id="top-navbar">
+            <div id="spacer"></div>
+            <div class="toggle-container"id="sim-selector">
+                <label><input type="radio"name="sim"value="1d"checked> 1D Generation Stacking</label>
+                <label><input type="radio"name="sim"value="2d"> 2D Game of Life</label>
+            </div>
+            <button id="reset-btn">🔄 Reset to Defaults</button>
+        </div>
+        <section id="canvas-container">
+            <header>
+                <div class="control-group">
+                    <div id="cg-label"><b>Cell Colors:</b></div>
+                    <input type="color"id="cells-color-picker"value="#ffffff">
+                </div>
+                <div class="control-group settings-1d">
+                    <label for="rule-input"><b>Rule Number</b> [0-255]: <input type="number"id="rule-input"min="0"max="255"step="1"value="25"onchange="if(this.value==''){this.value=30;}else{this.value=Math.max(0,Math.min(255,parseInt(this.value)||0));}"></label>
+                </div>
+                <div class="control-group settings-1d">
+                    <div id="cg-label"><b>Starting Generation:</b></div>
+                    <div id="starting-gen-1d"class="toggle-container">
+                        <label><input type="radio"name="starting-gen-1d"value="center"checked> One alive in center</label>
+                        <label><input type="radio"name="starting-gen-1d"value="random"> Random</label>
+                        <label><input type="radio"name="starting-gen-1d"value="alternating"> Alternating</label>
+                    </div>
+                </div>
+                <div class="control-group settings-2d">
+                    <div id="cg-label"><b>Click/Tap Interaction:</b></div>
+                    <div id="click-tap"class="toggle-container">
+                        <label><input type="radio"name="click-tap"value="revive"checked> Revives dead cells</label>
+                        <label><input type="radio"name="click-tap"value="kill"> Kills live cells</label>
+                    </div>
+                </div>
+                <div class="control-group settings-2d">
+                    <div id="cg-label"><b>Starting Generation:</b></div>
+                    <div id="starting-gen-2d"class="toggle-container">
+                        <label><input type="radio"name="starting-gen-2d"value="square"checked> Square</label>
+                        <label><input type="radio"name="starting-gen-2d"value="random"> Random</label>
+                        <label><input type="radio"name="starting-gen-2d"value="custom"> Draw Your Own</label>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div id="cg-label"><b>Cells per Row:</b></div>
+                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size"name="row-size"min="10"max="1000"value="200"step="10"><span class="slider-label">Max: 1000</span></span>
+                    <span id="row-size-val"style="margin-top:-10px;">Current: 200</span>
+                </div>
+                <div class="control-group">
+                    <div id="cg-label"><b>Render Speed:</b></div>
+                    <span><span class="slider-label">Min: 1 FPS</span><input type="range"id="render-speed"name="render-speed"min="1"max="250"value="60"step="10"><span class="slider-label">Max: 250 FPS</span></span>
+                    <span id="render-speed-val"style="margin-top:-10px;">Current: 60 FPS</span>
+                </div>
+                <div class="control-group">
+                    <button id="run-pause-btn"data-state="stopped">
+                        <span class="icon"style="padding-right:3px;">▶️</span>
+                        <span class="text">Run</span>
+                    </button>
+                </div>
+            </header>
+            <canvas>
+                <p>Your browser does not support HTML Canvas. Please update it!</p>
+            </canvas>
+        </section>
+        <script src="app.js"></script> 
+    </body>
+</html>
