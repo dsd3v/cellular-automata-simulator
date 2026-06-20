@@ -136,16 +136,19 @@
       canvas._cols1d = cols;
       canvas._ruleByte = activeConfig.rule;
       draw1dHistory(canvas);
-    } else if (currentSim === '2d') {
+} else if (currentSim === '2d') {
       var rows2d = Math.ceil((window.innerHeight * 1.2) / cellSize);
       
-      canvas.width = newWidth;
-      canvas.height = rows2d * cellSize;
+      if (canvas.width !== newWidth || canvas.height !== (rows2d * cellSize)) {
+        canvas.width = newWidth;
+        canvas.height = rows2d * cellSize;
+      }
 
       var grid = canvas._grid2d;
       if (grid) {
         var oldRows = grid.length;
         var oldCols = grid[0].length;
+        
         if (oldRows !== rows2d || oldCols !== cols) {
           var newGrid = makeEmpty2dGrid(cols, rows2d);
           for (var r = 0; r < Math.min(oldRows, rows2d); r++) {
