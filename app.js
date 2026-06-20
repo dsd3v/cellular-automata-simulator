@@ -2,8 +2,12 @@
   if (sessionStorage.getItem('redirectPath')) {
     sessionStorage.removeItem('redirectPath');
   }
-  if (window.location.pathname !== '/cellular-automata-simulator') {
-    window.history.replaceState(null, null, '/cellular-automata-simulator');
+  if (
+    !window.location.pathname
+      .toLowerCase()
+      .startsWith('/cellular-automata-simulator')
+  ) {
+    window.history.replaceState(null, null, '/cellular-automata-simulator/');
   }
 
   var default1d = {
