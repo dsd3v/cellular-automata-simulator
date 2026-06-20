@@ -131,7 +131,19 @@
       var rows2d = Math.ceil((window.innerHeight * 1.2) / cellSize);
       canvas.height = rows2d * cellSize;
       var grid = canvas._grid2d;
-      if (grid && grid.length === rows2d && grid[0].length === cols) {
+      if (grid) {
+        var oldRows = grid.length;
+        var oldCols = grid[0].length;
+        if (oldRows !== rows2d || oldCols !== cols) {
+          var newGrid = makeEmpty2dGrid(cols, rows2d);
+          for (var r = 0; r < Math.min(oldRows, rows2d); r++) {
+            for (var c = 0; c < Math.min(oldCols, cols); c++) {
+              newGrid[r][c] = grid[r][c];
+            }
+          }
+          canvas._grid2d = newGrid;
+        }
+        
         canvas._cellSize = cellSize;
         canvas._cols2d = cols;
         canvas._rows2d = rows2d;
