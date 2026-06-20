@@ -14,7 +14,7 @@
     cellsPerRow: 200,
     renderSpeedFps: 60,
     runningState: 'stopped',
-    rule: 25,
+    rule: 50,
     startingGen: 'center',
   };
   var default2d = {
@@ -58,8 +58,13 @@
   function saveStateToStorage() {
     localStorage.setItem('simStates', JSON.stringify(simStates));
   }
+  var _cachedCanvas = null;
   function getCanvas() {
-    return document.getElementById('canvas-container').querySelector('canvas');
+    if (!_cachedCanvas) {
+      var container = document.getElementById('canvas-container');
+      if (container) _cachedCanvas = container.querySelector('canvas');
+    }
+    return _cachedCanvas;
   }
 
   function makeGen1d(startingGen) {
@@ -102,6 +107,8 @@
     var activeConfig = simStates[currentSim];
     var container = document.getElementById('canvas-container');
     var canvas = getCanvas();
+    if (!container || !canvas) return;
+
     var containerWidth = container.clientWidth;
     var cellSize = Math.max(
       1,
@@ -109,12 +116,15 @@
     );
     var cols = Math.floor(containerWidth / cellSize);
     var newWidth = cols * cellSize;
+
     if (currentSim === '1d') {
       var newHeight =
         Math.ceil((window.innerHeight * 1.2) / cellSize) * cellSize;
       var totalRows = Math.floor(newHeight / cellSize);
+      
       canvas.width = newWidth;
       canvas.height = newHeight;
+
       if (!canvas._history1d || !canvas._history1d.length) {
         var gen = makeGen1d(activeConfig.startingGen);
         canvas._history1d = [gen];
@@ -127,9 +137,11 @@
       canvas._ruleByte = activeConfig.rule;
       draw1dHistory(canvas);
     } else if (currentSim === '2d') {
-      canvas.width = newWidth;
       var rows2d = Math.ceil((window.innerHeight * 1.2) / cellSize);
+      
+      canvas.width = newWidth;
       canvas.height = rows2d * cellSize;
+
       var grid = canvas._grid2d;
       if (grid) {
         var oldRows = grid.length;
@@ -148,7 +160,7 @@
         canvas._cols2d = cols;
         canvas._rows2d = rows2d;
         attach2dInteraction(canvas, activeConfig);
-        draw2dGrid(canvas);
+        draw2dGrid(canvas); 
       } else {
         init2dGrid(canvas, cellSize, cols, rows2d, activeConfig);
       }
@@ -520,7 +532,6 @@
     applyStateToUI();
     simSelector.addEventListener('change', e => {
       var newSim = e.target.value;
-      var canvas = getCanvas();
       if (runPauseBtn && runPauseBtn.getAttribute('data-state') === 'running')
         pauseSimulation();
       simStates[newSim].runningState = 'stopped';
