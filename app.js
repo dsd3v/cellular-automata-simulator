@@ -121,7 +121,7 @@
       var newHeight =
         Math.ceil((window.innerHeight * 1.2) / cellSize) * cellSize;
       var totalRows = Math.floor(newHeight / cellSize);
-      
+
       canvas.width = newWidth;
       canvas.height = newHeight;
 
@@ -136,10 +136,10 @@
       canvas._cols1d = cols;
       canvas._ruleByte = activeConfig.rule;
       draw1dHistory(canvas);
-} else if (currentSim === '2d') {
+    } else if (currentSim === '2d') {
       var rows2d = Math.ceil((window.innerHeight * 1.2) / cellSize);
-      
-      if (canvas.width !== newWidth || canvas.height !== (rows2d * cellSize)) {
+
+      if (canvas.width !== newWidth || canvas.height !== rows2d * cellSize) {
         canvas.width = newWidth;
         canvas.height = rows2d * cellSize;
       }
@@ -148,7 +148,7 @@
       if (grid) {
         var oldRows = grid.length;
         var oldCols = grid[0].length;
-        
+
         if (oldRows !== rows2d || oldCols !== cols) {
           var newGrid = makeEmpty2dGrid(cols, rows2d);
           var rowOffset = Math.floor((oldRows - rows2d) / 2);
@@ -164,12 +164,12 @@
           }
           canvas._grid2d = newGrid;
         }
-        
+
         canvas._cellSize = cellSize;
         canvas._cols2d = cols;
         canvas._rows2d = rows2d;
         attach2dInteraction(canvas, activeConfig);
-        draw2dGrid(canvas); 
+        draw2dGrid(canvas);
       } else {
         init2dGrid(canvas, cellSize, cols, rows2d, activeConfig);
       }
@@ -185,7 +185,7 @@
     }
     if (renderSpeedInput && renderSpeedVal) {
       renderSpeedInput.value = state.renderSpeedFps;
-      renderSpeedInput.textContent = `Current: ${state.renderSpeedFps}`;
+      renderSpeedVal.textContent = `Current: ${state.renderSpeedFps}`;
     }
     if (currentSim === '1d') {
       if (ruleInput) ruleInput.value = state.rule;
