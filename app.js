@@ -278,21 +278,12 @@
     draw2dGrid(canvas);
   }
 
-  function draw2dGrid(canvas) {
-    var grid = canvas._grid2d;
-    if (!grid) return;
-    var cellSize = canvas._cellSize;
-    var ctx = canvas.getContext('2d');
-    var rows = grid.length,
-      cols = grid[0].length;
-    var liveColor = simStates['2d'].liveCellColor;
-    var deadColor = simStates['2d'].deadCellColor;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (var r = 0; r < rows; r++)
-      for (var c = 0; c < cols; c++) {
-        ctx.fillStyle = grid[r][c] ? liveColor : deadColor;
-        ctx.fillRect(c * cellSize, r * cellSize, cellSize, cellSize);
-      }
+  function hexToPackedColor(hex) {
+    if (hex.indexOf('#') === 0) hex = hex.slice(1);
+    var r = parseInt(hex.slice(0, 2), 16);
+    var g = parseInt(hex.slice(2, 4), 16);
+    var b = parseInt(hex.slice(4, 6), 16);
+    return (255 << 24) | (b << 16) | (g << 8) | r;
   }
 
   function step2d(canvas) {
@@ -301,23 +292,83 @@
     var rows = grid.length,
       cols = grid[0].length;
     var next = makeEmpty2dGrid(cols, rows);
-    for (var r = 0; r < rows; r++)
+
+    var colLeft = canvas._colLeft;
+    var colRight = canvas._colRight;
+    if (!colLeft || colLeft.length !== cols) {
+      colLeft = new Int32Array(cols);
+      colRight = new Int32Array(cols);
       for (var c = 0; c < cols; c++) {
-        var n = 0;
-        for (var dr = -1; dr <= 1; dr++)
-          for (var dc = -1; dc <= 1; dc++) {
-            if (dr === 0 && dc === 0) continue;
-            n += grid[(r + dr + rows) % rows][(c + dc + cols) % cols];
-          }
-        next[r][c] = grid[r][c]
-          ? n === 2 || n === 3
-            ? 1
-            : 0
-          : n === 3
-            ? 1
-            : 0;
+        colLeft[c] = c === 0 ? cols - 1 : c - 1;
+        colRight[c] = c === cols - 1 ? 0 : c + 1;
       }
+      canvas._colLeft = colLeft;
+      canvas._colRight = colRight;
+    }
+
+    for (var r = 0; r < rows; r++) {
+      var rUp = r === 0 ? rows - 1 : r - 1;
+      var rDown = r === rows - 1 ? 0 : r + 1;
+      var neighborRows = [grid[rUp], grid[r], grid[rDown]];
+      var gridMid = grid[r];
+      var nextRow = next[r];
+
+      for (var c = 0; c < cols; c++) {
+        var cl = colLeft[c],
+          cr = colRight[c];
+        var n = 0;
+        for (var ri = 0; ri < 3; ri++) {
+          var row = neighborRows[ri];
+          n += row[cl] + row[c] + row[cr];
+        }
+        n -= gridMid[c];
+        nextRow[c] = n === 3 || (n === 2 && gridMid[c]) ? 1 : 0;
+      }
+    }
     canvas._grid2d = next;
+  }
+
+  function draw2dGrid(canvas) {
+    var grid = canvas._grid2d;
+    if (!grid) return;
+    var cellSize = canvas._cellSize;
+    var ctx = canvas.getContext('2d');
+    var rows = grid.length,
+      cols = grid[0].length;
+    var width = canvas.width,
+      height = canvas.height;
+
+    var imageData = canvas._imageData;
+    if (
+      !imageData ||
+      imageData.width !== width ||
+      imageData.height !== height
+    ) {
+      imageData = ctx.createImageData(width, height);
+      canvas._imageData = imageData;
+      canvas._pixels32 = new Uint32Array(imageData.data.buffer);
+    }
+    var pixels = canvas._pixels32;
+
+    var liveColor = hexToPackedColor(simStates['2d'].liveCellColor);
+    var deadColor = hexToPackedColor(simStates['2d'].deadCellColor);
+
+    for (var r = 0; r < rows; r++) {
+      var gridRow = grid[r];
+      var rowStartY = r * cellSize;
+      for (var c = 0; c < cols; c++) {
+        var color = gridRow[c] ? liveColor : deadColor;
+        var colStartX = c * cellSize;
+        for (var dy = 0; dy < cellSize; dy++) {
+          var rowOffset = (rowStartY + dy) * width;
+          for (var dx = 0; dx < cellSize; dx++) {
+            pixels[rowOffset + colStartX + dx] = color;
+          }
+        }
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
   }
 
   function attach2dInteraction(canvas, config) {
@@ -637,21 +688,23 @@
   if (startingGen1dContainer) {
     startingGen1dContainer.addEventListener('change', e => {
       simStates['1d'].startingGen = e.target.value;
+      pauseSimulation();
       var canvas = getCanvas();
       canvas._lastGen1d = null;
       canvas._history1d = null;
       saveStateToStorage();
-      restart();
+      applyStateToUI();
     });
   }
 
   if (startingGen2dContainer) {
     startingGen2dContainer.addEventListener('change', e => {
       simStates['2d'].startingGen = e.target.value;
+      pauseSimulation();
       var canvas = getCanvas();
       canvas._grid2d = null;
       saveStateToStorage();
-      restart();
+      applyStateToUI();
     });
   }
 
