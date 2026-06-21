@@ -103,8 +103,8 @@ header {
 #rule-input {
   border: 1px solid rgba(var(--border-rgb), 0.3);
   font-size: 0.9rem;
-  min-width: 25px;
-  padding: 2px 4x;
+  min-width: 30px;
+  padding: 2px 4px;
 }
 
 #rule-input:focus {
