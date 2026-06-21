@@ -185,7 +185,7 @@
     }
     if (renderSpeedInput && renderSpeedVal) {
       renderSpeedInput.value = state.renderSpeedFps;
-      renderSpeedVal.textContent = `Current: ${state.renderSpeedFps}`;
+      renderSpeedVal.textContent = `Current: ${state.renderSpeedFps} FPS`;
     }
     if (currentSim === '1d') {
       if (ruleInput) ruleInput.value = state.rule;
