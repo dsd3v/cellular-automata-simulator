@@ -628,7 +628,7 @@
 
   if (ruleInput) {
     ruleInput.addEventListener('change', e => {
-      simStates['1d'].rule = parseInt(e.target.value, 10) || 25;
+      simStates['1d'].rule = parseInt(e.target.value, 10) || 50;
       saveStateToStorage();
       updateCanvasLayout();
     });
