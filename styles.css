@@ -101,8 +101,16 @@ header {
 }
 
 #rule-input {
+  border: 1px solid rgba(var(--border-rgb), 0.3);
   font-size: 0.9rem;
-  min-width: 20px;
+  min-width: 25px;
+  padding: 2px 4x;
+}
+
+#rule-input:focus {
+  border-color: rgba(var(--border-rgb), 0.6);
+  box-shadow: 0 0 0 3px rgba(var(--border-rgb), 0.1);
+  outline: none;
 }
 
 .slider-label {
