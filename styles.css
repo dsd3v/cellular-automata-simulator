@@ -96,8 +96,9 @@ header {
 
 #reset-btn {
   flex: 1;
-  margin: 30px 12px 0 auto;
-  max-width: 150px;
+  margin: 30px 5% 0 auto;
+  max-width: 170px;
+  min-width: 120px;
 }
 
 #rule-input {
