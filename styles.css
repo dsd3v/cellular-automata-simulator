@@ -65,7 +65,7 @@ canvas {
   cursor: pointer;
 }
 
-#cg-label {
+.cg-label {
   margin-bottom: -3px;
 }
 
