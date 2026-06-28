@@ -11,10 +11,10 @@
   var default1d = {
     liveCellColor: '#ffffff',
     deadCellColor: '#000000',
-    cellsPerRow: 200,
+    cellsPerRow: 100,
     renderSpeedFps: 60,
     runningState: 'stopped',
-    rule: 50,
+    rule: Math.floor(Math.random() * 256),
     startingGen: 'center',
   };
   var default2d = {
@@ -23,7 +23,7 @@
     cellsPerRow: 100,
     renderSpeedFps: 60,
     runningState: 'stopped',
-    startingGen: 'square',
+    startingGen: 'random',
     clickTap: 'revive',
   };
   var MAX_COLS_1D = 1000;
@@ -179,6 +179,14 @@
   function applyStateToUI() {
     var state = simStates[currentSim];
     document.body.setAttribute('data-sim', currentSim);
+    if (resetBtn) {
+      var modeLabel = currentSim.toUpperCase();
+      resetBtn.innerHTML = `🔄 Reset ${modeLabel} Simulation`;
+      resetBtn.setAttribute(
+        'aria-label',
+        `Reset ${modeLabel} simulator to new starting state`,
+      );
+    }
     if (rowSizeInput && rowSizeVal) {
       rowSizeInput.value = state.cellsPerRow;
       rowSizeVal.textContent = `Current: ${state.cellsPerRow}`;
@@ -248,27 +256,85 @@
   function init2dGrid(canvas, cellSize, cols, rows, config) {
     var grid = makeEmpty2dGrid(cols, rows);
     if (config.startingGen === 'random') {
-      for (var r = 0; r < rows; r++)
-        for (var c = 0; c < cols; c++) grid[r][c] = Math.random() < 0.3 ? 1 : 0;
-    } else if (config.startingGen === 'square') {
-      var cx = Math.floor(cols / 2),
-        cy = Math.floor(rows / 2.1);
-      var half = Math.max(
-        1,
-        Math.min(Math.floor(cols / 6), Math.floor(rows / 6)),
-      );
-      for (var r = cy - half; r <= cy + half; r++)
-        for (var c = cx - half; c <= cx + half; c++) {
-          if (r >= 0 && r < rows && c >= 0 && c < cols) {
-            if (
-              r === cy - half ||
-              r === cy + half ||
-              c === cx - half ||
-              c === cx + half
+      var style = Math.floor(Math.random() * 4);
+      for (var r = 0; r < rows; r++) {
+        for (var c = 0; c < cols; c++) grid[r][c] = 0;
+      }
+      if (style === 0) {
+        // Random Clusters / Blobs (Clumped noise)
+        var numBlobs = Math.floor(Math.random() * 15) + 5; // 5 to 20 blobs
+        for (var b = 0; b < numBlobs; b++) {
+          var centerR = Math.floor(Math.random() * rows);
+          var centerC = Math.floor(Math.random() * cols);
+          var radius = Math.floor(Math.random() * 8) + 3; // Blob size
+          for (
+            var r = Math.max(0, centerR - radius);
+            r < Math.min(rows, centerR + radius);
+            r++
+          ) {
+            for (
+              var c = Math.max(0, centerC - radius);
+              c < Math.min(cols, centerC + radius);
+              c++
+            ) {
+              if (Math.random() < 0.6) grid[r][c] = 1;
+            }
+          }
+        }
+      } else if (style === 1) {
+        // Randomized Uniform Density (Ranges from sparse 5% to dense 45%)
+        var density = Math.random() * 0.4 + 0.05;
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            if (Math.random() < density) grid[r][c] = 1;
+          }
+        }
+      } else if (style === 2) {
+        // Geometric Shapes / Concentric Boxes
+        var numBoxes = Math.floor(Math.random() * 4) + 2;
+        for (var i = 0; i < numBoxes; i++) {
+          var w = Math.floor(Math.random() * (cols / 3)) + 5;
+          var h = Math.floor(Math.random() * (rows / 3)) + 5;
+          var startR = Math.floor(Math.random() * (rows - h));
+          var startC = Math.floor(Math.random() * (cols - w));
+          for (var r = startR; r < startR + h; r++) {
+            for (var c = startC; c < startC + w; c++) {
+              if (
+                r === startR ||
+                r === startR + h - 1 ||
+                c === startC ||
+                c === startC + w - 1 ||
+                Math.random() < 0.2
+              ) {
+                grid[r][c] = 1;
+              }
+            }
+          }
+        }
+      } else if (style === 3) {
+        // Horizontal or Vertical Strips / Lines
+        var isHorizontal = Math.random() < 0.5;
+        var numLines = Math.floor(Math.random() * 6) + 3;
+        for (var l = 0; l < numLines; l++) {
+          if (isHorizontal) {
+            var r = Math.floor(Math.random() * rows);
+            for (
+              var c = Math.floor(Math.random() * cols);
+              c < cols;
+              c += Math.random() < 0.5 ? 1 : 2
+            )
+              grid[r][c] = 1;
+          } else {
+            var c = Math.floor(Math.random() * cols);
+            for (
+              var r = Math.floor(Math.random() * rows);
+              r < rows;
+              r += Math.random() < 0.5 ? 1 : 2
             )
               grid[r][c] = 1;
           }
         }
+      }
     }
     canvas._grid2d = grid;
     canvas._cellSize = cellSize;
@@ -628,6 +694,7 @@
       if (wasRunning) pauseSimulation();
       if (currentSim === '1d') {
         simStates['1d'] = { ...default1d };
+        simStates['1d'].rule = Math.floor(Math.random() * 256);
         canvas._lastGen1d = null;
         canvas._history1d = null;
       } else if (currentSim === '2d') {
@@ -679,7 +746,16 @@
 
   if (ruleInput) {
     ruleInput.addEventListener('change', e => {
-      simStates['1d'].rule = parseInt(e.target.value, 10) || 50;
+      var parsed = parseInt(e.target.value, 10);
+      if (isNaN(parsed)) {
+        var randomRule = Math.floor(Math.random() * 256);
+        simStates['1d'].rule = randomRule;
+        e.target.value = randomRule;
+      } else {
+        var clampedRule = Math.max(0, Math.min(255, parsed));
+        simStates['1d'].rule = clampedRule;
+        e.target.value = clampedRule;
+      }
       saveStateToStorage();
       updateCanvasLayout();
     });
