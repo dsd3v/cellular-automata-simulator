@@ -4,6 +4,10 @@
         <title>Cellular Automata Simulator</title>
         <link rel="stylesheet"href="styles.css">
         <script>
+            sessionStorage.removeItem('redirectPath');
+            if(location.pathname.toLowerCase()!=='/cellular-automata-simulator'){
+                history.replaceState(null,'','/cellular-automata-simulator');
+            }
             var applyColorTheme=()=>{
                 var hour=new Date().getHours();
                 if(window.matchMedia('(prefers-color-scheme:light)').matches){document.documentElement.classList.remove('dark-theme');}

@@ -1,13 +1,4 @@
 (function () {
-  if (sessionStorage.getItem('redirectPath')) {
-    sessionStorage.removeItem('redirectPath');
-  }
-  if (
-    window.location.pathname.toLowerCase() !== '/cellular-automata-simulator'
-  ) {
-    window.history.replaceState(null, null, '/cellular-automata-simulator');
-  }
-
   var default1d = {
     liveCellColor: '#ffffff',
     deadCellColor: '#000000',
