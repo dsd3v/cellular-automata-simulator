@@ -12,10 +12,9 @@
             var lightMedia=window.matchMedia('(prefers-color-scheme:light)');
             function applyColorTheme(){
                 var hour=new Date().getHours();
-                var isDark=false;
-                if(!lightMedia.matches&&(darkMedia.matches||(hour<5||hour>=20))){isDark=true;}
-                document.documentElement.classList.toggle('dark-theme',isDark);
-                document.documentElement.style.colorScheme=isDark?'dark':'light';
+                var shouldBeDark=!lightMedia.matches&&(darkMedia.matches||(hour<5||hour>=20));
+                document.documentElement.classList.toggle('dark-theme',shouldBeDark);
+                document.documentElement.style.colorScheme=shouldBeDark?'dark':'light';
             }
             applyColorTheme();
             darkMedia.addEventListener('change',applyColorTheme);
