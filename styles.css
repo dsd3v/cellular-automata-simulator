@@ -57,7 +57,7 @@ canvas {
   flex-direction: column;
   margin: 20px 0 0 0;
   min-height: 110vh;
-  width: 97%;
+  width: 95%;
 }
 
 #cells-color-picker {

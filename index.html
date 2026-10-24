@@ -3,6 +3,7 @@
         <meta charset="UTF-8"content="width=device-width,initial-scale=1.0"name="viewport"/>
         <title>Cellular Automata Simulator</title>
         <link rel="stylesheet"href="styles.css">
+        <link rel="icon"href="favicon.ico"sizes="any">
         <script>
             sessionStorage.removeItem('redirectPath');
             if(location.pathname.toLowerCase()!=='/cellular-automata-simulator'){
@@ -63,12 +64,12 @@
                 </div>
                 <div class="control-group">
                     <div class="cg-label"><b>Cells per Row:</b></div>
-                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size"name="row-size"min="10"max="1000"step="10"aria-label="Cells per row"><span class="slider-label">Max: 1000</span></span>
+                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size"name="row-size"min="10"max="1000"aria-label="Cells per row"><span class="slider-label">Max: 1000</span></span>
                     <span id="row-size-val"style="margin-top:-10px;">Current: 100</span>
                 </div>
                 <div class="control-group">
                     <div class="cg-label"><b>Render Speed:</b></div>
-                    <span><span class="slider-label">Min: 10 FPS</span><input type="range"id="render-speed"name="render-speed"min="10"max="250"value="60"step="10"aria-label="Render speed in frames per second"><span class="slider-label">Max: 250 FPS</span></span>
+                    <span><span class="slider-label">Min: 1 FPS</span><input type="range"id="render-speed"name="render-speed"min="1"max="250"value="60"aria-label="Render speed in frames per second"><span class="slider-label">Max: 250 FPS</span></span>
                     <span id="render-speed-val"style="margin-top:-10px;">Current: 60 FPS</span>
                 </div>
                 <div class="control-group">
@@ -82,6 +83,6 @@
                 <p>Your browser does not support HTML Canvas. Please update it!</p>
             </canvas>
         </section>
-        <script src='/cellular-automata-simulator/app.js'></script> 
+        <script type='module' src='/cellular-automata-simulator/js/app.js'></script> 
     </body>
 </html>
