@@ -1,13 +1,18 @@
 import * as sim1d from './1d.js';
 import * as sim2d from './2d.js';
+import * as sim3d from './3d.js';
 
-var sims = { '1d': sim1d, '2d': sim2d };
+var sims = { '1d': sim1d, '2d': sim2d, '3d': sim3d };
 
-var currentSim = localStorage.getItem('selectedSim') || '1d';
-var savedStates = localStorage.getItem('simStates');
+var currentSim = sessionStorage.getItem('selectedSim') || '1d';
+var savedStates = sessionStorage.getItem('simStates');
 var simStates = savedStates
   ? JSON.parse(savedStates)
-  : { '1d': { ...sim1d.defaults }, '2d': { ...sim2d.defaults } };
+  : {
+      '1d': { ...sim1d.defaults },
+      '2d': { ...sim2d.defaults },
+      '3d': { ...sim3d.defaults },
+    };
 
 var _animFrameId = null;
 
@@ -29,7 +34,7 @@ function getComplementColor(hex) {
 }
 
 function saveStateToStorage() {
-  localStorage.setItem('simStates', JSON.stringify(simStates));
+  sessionStorage.setItem('simStates', JSON.stringify(simStates));
 }
 
 var _cachedCanvas = null;
@@ -134,8 +139,10 @@ var ctx = {
     _animFrameId = id;
   },
 };
+
 sim1d.init(ctx);
 sim2d.init(ctx);
+sim3d.init(ctx);
 
 if (simSelector) {
   var savedRadio = simSelector.querySelector(`input[value="${currentSim}"]`);
@@ -149,7 +156,7 @@ if (simSelector) {
     }
 
     simStates[newSim].runningState = 'stopped';
-    localStorage.setItem('selectedSim', newSim);
+    sessionStorage.setItem('selectedSim', newSim);
     saveStateToStorage();
     currentSim = newSim;
     applyStateToUI();
@@ -194,13 +201,8 @@ if (resetBtn) {
 
 if (cellsColorPicker) {
   cellsColorPicker.addEventListener('input', e => {
-    if (currentSim == '1d') {
-      simStates['1d'].liveCellColor = e.target.value;
-      simStates['1d'].deadCellColor = getComplementColor(e.target.value);
-    } else if (currentSim == '2d') {
-      simStates['2d'].liveCellColor = e.target.value;
-      simStates['2d'].deadCellColor = getComplementColor(e.target.value);
-    }
+    simStates[currentSim].liveCellColor = e.target.value;
+    simStates[currentSim].deadCellColor = getComplementColor(e.target.value);
 
     saveStateToStorage();
     applyStateToUI();
@@ -231,6 +233,7 @@ if (renderSpeedInput) {
 
 sim1d.bindControls();
 sim2d.bindControls();
+sim3d.bindControls();
 
 var _resizeTimer = null;
 window.addEventListener('resize', () => {
@@ -243,5 +246,6 @@ window.addEventListener('resize', () => {
 window.addEventListener('beforeunload', () => {
   simStates['1d'].runningState = 'stopped';
   simStates['2d'].runningState = 'stopped';
+  simStates['3d'].runningState = 'stopped';
   saveStateToStorage();
 });

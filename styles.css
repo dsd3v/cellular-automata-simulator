@@ -38,6 +38,9 @@ body[data-sim='1d'] .settings-1d {
 body[data-sim='2d'] .settings-2d {
   display: flex;
 }
+body[data-sim='3d'] .settings-3d {
+  display: flex;
+}
 
 button {
   cursor: pointer;
@@ -57,7 +60,7 @@ canvas {
   flex-direction: column;
   margin: 20px 0 0 0;
   min-height: 110vh;
-  width: 95%;
+  width: 92%;
 }
 
 #cells-color-picker {
@@ -124,6 +127,10 @@ header {
 }
 
 .settings-2d {
+  display: none;
+}
+
+.settings-3d {
   display: none;
 }
 

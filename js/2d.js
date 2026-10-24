@@ -18,7 +18,7 @@ var runSimulation;
 var setAnimFrame;
 
 var startingGen2dContainer = document.getElementById('starting-gen-2d');
-var clickTapContainer = document.getElementById('click-tap');
+var clickTap2dContainer = document.getElementById('click-tap-2d');
 
 export function init(ctx) {
   simStates = ctx.simStates;
@@ -396,8 +396,10 @@ export function layout(canvas, activeConfig, dims) {
 }
 
 export function applyToUI(state) {
-  if (clickTapContainer) {
-    var r = clickTapContainer.querySelector(`input[value="${state.clickTap}"]`);
+  if (clickTap2dContainer) {
+    var r = clickTap2dContainer.querySelector(
+      `input[value="${state.clickTap}"]`,
+    );
     if (r) r.checked = true;
   }
 
@@ -462,8 +464,8 @@ export function bindControls() {
     });
   }
 
-  if (clickTapContainer) {
-    clickTapContainer.addEventListener('change', e => {
+  if (clickTap2dContainer) {
+    clickTap2dContainer.addEventListener('change', e => {
       simStates['2d'].clickTap = e.target.value;
       saveStateToStorage();
     });

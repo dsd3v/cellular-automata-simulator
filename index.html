@@ -27,6 +27,7 @@
             <div class="toggle-container"id="sim-selector"role="radiogroup"aria-label="Simulation Mode">
                 <label><input type="radio"name="sim"value="1d"checked> 1D Generation Stacking</label>
                 <label><input type="radio"name="sim"value="2d"> 2D Game of Life</label>
+                <label><input type="radio"name="sim"value="3d"> 3D Game of Life</label>
             </div>
             <button id="reset-btn"aria-label="Reset 1D simulator to new starting state">🔄 Reset 1D Simulation</button>
         </div>
@@ -50,9 +51,9 @@
                 </div>
                 <div class="control-group settings-2d">
                     <div class="cg-label"><b>Click/Tap Interaction:</b></div>
-                    <div id="click-tap"class="toggle-container">
-                        <label><input type="radio"name="click-tap"value="revive"checked> Revives dead cells</label>
-                        <label><input type="radio"name="click-tap"value="kill"> Kills live cells</label>
+                    <div id="click-tap-2d"class="toggle-container"aria-label="2D Click Interaction">
+                        <label><input type="radio"name="click-tap-2d"value="revive"checked> Revives dead cells</label>
+                        <label><input type="radio"name="click-tap-2d"value="kill"> Kills live cells</label>
                     </div>
                 </div>
                 <div class="control-group settings-2d">
@@ -60,6 +61,20 @@
                     <div id="starting-gen-2d"class="toggle-container"role="radiogroup"aria-label="2D Starting Generation Mode">
                         <label><input type="radio"name="starting-gen-2d"value="random"> Random (Default)</label>
                         <label><input type="radio"name="starting-gen-2d"value="custom"> Draw Your Own</label>
+                    </div>
+                </div>
+                <div class="control-group settings-3d">
+                    <div class="cg-label"><b>Click/Tap Interaction:</b></div>
+                    <div id="click-tap-3d"class="toggle-container"aria-label="3D Click Interaction">
+                        <label><input type="radio"name="click-tap-3d"value="revive"checked> Revives dead cells</label>
+                        <label><input type="radio"name="click-tap-3d"value="kill"> Kills live cells</label>
+                    </div>
+                </div>
+                <div class="control-group settings-3d">
+                    <div class="cg-label"><b>Starting Generation:</b></div>
+                    <div id="starting-gen-3d"class="toggle-container"role="radiogroup"aria-label="3D Starting Generation Mode">
+                        <label><input type="radio"name="starting-gen-3d"value="random"> Random (Default)</label>
+                        <label><input type="radio"name="starting-gen-3d"value="custom"> Draw Your Own</label>
                     </div>
                 </div>
                 <div class="control-group">
