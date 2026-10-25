@@ -20,8 +20,6 @@ var simSelector = document.getElementById('sim-selector');
 var runPauseBtn = document.getElementById('run-pause-btn');
 var resetBtn = document.getElementById('reset-btn');
 var cellsColorPicker = document.getElementById('cells-color-picker');
-var rowSizeInput = document.getElementById('row-size');
-var rowSizeVal = document.getElementById('row-size-val');
 var renderSpeedInput = document.getElementById('render-speed');
 var renderSpeedVal = document.getElementById('render-speed-val');
 
@@ -78,11 +76,6 @@ function applyStateToUI() {
       'aria-label',
       `Reset ${modeLabel} simulator to new starting state`,
     );
-  }
-
-  if (rowSizeInput && rowSizeVal) {
-    rowSizeInput.value = state.cellsPerRow;
-    rowSizeVal.textContent = `Current: ${state.cellsPerRow}`;
   }
 
   if (renderSpeedInput && renderSpeedVal) {
@@ -206,16 +199,6 @@ if (cellsColorPicker) {
 
     saveStateToStorage();
     applyStateToUI();
-    updateCanvasLayout();
-  });
-}
-
-if (rowSizeInput) {
-  rowSizeInput.addEventListener('input', e => {
-    if (rowSizeVal) rowSizeVal.textContent = `Current: ${e.target.value}`;
-    simStates[currentSim].cellsPerRow = parseInt(e.target.value, 10);
-
-    saveStateToStorage();
     updateCanvasLayout();
   });
 }

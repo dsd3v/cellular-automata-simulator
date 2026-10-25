@@ -21,6 +21,8 @@ var setAnimFrame;
 
 var ruleInput = document.getElementById('rule-input');
 var startingGen1dContainer = document.getElementById('starting-gen-1d');
+var rowSizeInput1d = document.getElementById('row-size-1d');
+var rowSizeVal1d = document.getElementById('row-size-val-1d');
 
 export function init(ctx) {
   simStates = ctx.simStates;
@@ -114,6 +116,10 @@ export function layout(canvas, activeConfig, dims) {
 
 export function applyToUI(state) {
   if (ruleInput) ruleInput.value = state.rule;
+
+  if (rowSizeInput1d) rowSizeInput1d.value = state.cellsPerRow;
+  if (rowSizeVal1d)
+    rowSizeVal1d.textContent = `Current: ${state.cellsPerRow}`;
 
   if (startingGen1dContainer) {
     var r = startingGen1dContainer.querySelector(
@@ -214,6 +220,17 @@ export function bindControls() {
 
       saveStateToStorage();
       applyStateToUI();
+    });
+  }
+
+  if (rowSizeInput1d) {
+    rowSizeInput1d.addEventListener('input', e => {
+      if (rowSizeVal1d)
+        rowSizeVal1d.textContent = `Current: ${e.target.value}`;
+      simStates['1d'].cellsPerRow = parseInt(e.target.value, 10);
+
+      saveStateToStorage();
+      updateCanvasLayout();
     });
   }
 }

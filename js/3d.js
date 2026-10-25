@@ -1,7 +1,7 @@
 export var defaults = {
   liveCellColor: '#ffffff',
   deadCellColor: '#000000',
-  cellsPerRow: 40,
+  cellsPerRow: 50,
   renderSpeedFps: 12,
   runningState: 'stopped',
   startingGen: 'random',
@@ -11,6 +11,18 @@ export var defaults = {
 export var maxCellsPerRow = 100;
 
 var MIN_SIDE = 3;
+var SURVIVE_COUNTS = [5, 6, 7];
+var BIRTH_COUNTS = [6, 7];
+
+var SURVIVE = new Uint8Array(27);
+var BIRTH = new Uint8Array(27);
+SURVIVE_COUNTS.forEach(function (c) {
+  SURVIVE[c] = 1;
+});
+BIRTH_COUNTS.forEach(function (c) {
+  BIRTH[c] = 1;
+});
+
 var VIEW_HEIGHT_FRACTION = 0.8;
 var DEFAULT_CAMERA = { yaw: 0.6, pitch: 0.5, zoom: 1 };
 var cam = { yaw: DEFAULT_CAMERA.yaw, pitch: DEFAULT_CAMERA.pitch, zoom: 1 };
@@ -23,9 +35,12 @@ var applyStateToUI;
 var pauseSimulation;
 var runSimulation;
 var setAnimFrame;
+var updateCanvasLayout;
 
 var startingGen3dContainer = document.getElementById('starting-gen-3d');
 var clickTap3dContainer = document.getElementById('click-tap-3d');
+var rowSizeInput3d = document.getElementById('row-size-3d');
+var rowSizeVal3d = document.getElementById('row-size-val-3d');
 
 export function init(ctx) {
   simStates = ctx.simStates;
@@ -36,6 +51,7 @@ export function init(ctx) {
   pauseSimulation = ctx.pauseSimulation;
   runSimulation = ctx.runSimulation;
   setAnimFrame = ctx.setAnimFrame;
+  updateCanvasLayout = ctx.updateCanvasLayout;
 }
 
 function createLife(n) {
@@ -239,7 +255,7 @@ function step3d(canvas) {
     k = touched[i];
     var cnt = counts[k];
     counts[k] = 0;
-    if (cnt === 5 || (cnt === 4 && pos[k] >= 0)) next[nx++] = k;
+    if (pos[k] >= 0 ? SURVIVE[cnt] : BIRTH[cnt]) next[nx++] = k;
   }
 
   for (i = 0; i < count; i++) pos[live[i]] = -1;
@@ -732,6 +748,9 @@ export function layout(canvas, activeConfig, dims) {
 }
 
 export function applyToUI(state) {
+  if (rowSizeInput3d) rowSizeInput3d.value = state.cellsPerRow;
+  if (rowSizeVal3d) rowSizeVal3d.textContent = `Current: ${state.cellsPerRow}`;
+
   if (clickTap3dContainer) {
     var r = clickTap3dContainer.querySelector(
       `input[value="${state.clickTap}"]`,
@@ -807,6 +826,16 @@ export function bindControls() {
     clickTap3dContainer.addEventListener('change', e => {
       simStates['3d'].clickTap = e.target.value;
       saveStateToStorage();
+    });
+  }
+
+  if (rowSizeInput3d) {
+    rowSizeInput3d.addEventListener('input', e => {
+      if (rowSizeVal3d) rowSizeVal3d.textContent = `Current: ${e.target.value}`;
+      simStates['3d'].cellsPerRow = parseInt(e.target.value, 10);
+
+      saveStateToStorage();
+      updateCanvasLayout();
     });
   }
 }

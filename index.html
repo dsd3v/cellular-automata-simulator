@@ -49,6 +49,11 @@
                         <label><input type="radio"name="starting-gen-1d"value="alternating"> Alternating</label>
                     </div>
                 </div>
+                <div class="control-group settings-1d">
+                    <div class="cg-label"><b>Cells per Row:</b></div>
+                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size-1d"name="row-size-1d"min="10"max="1000"aria-label="Cells per row 1D"><span class="slider-label">Max: 1000</span></span>
+                    <span id="row-size-val-1d"style="margin-top:-10px;">Current: 100</span>
+                </div>
                 <div class="control-group settings-2d">
                     <div class="cg-label"><b>Click/Tap Interaction:</b></div>
                     <div id="click-tap-2d"class="toggle-container"aria-label="2D Click Interaction">
@@ -62,6 +67,11 @@
                         <label><input type="radio"name="starting-gen-2d"value="random"> Random (Default)</label>
                         <label><input type="radio"name="starting-gen-2d"value="custom"> Draw Your Own</label>
                     </div>
+                </div>
+                <div class="control-group settings-2d">
+                    <div class="cg-label"><b>Cells per Row:</b></div>
+                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size-2d"name="row-size-2d"min="10"max="1000"aria-label="Cells per row 2D"><span class="slider-label">Max: 1000</span></span>
+                    <span id="row-size-val-2d"style="margin-top:-10px;">Current: 100</span>
                 </div>
                 <div class="control-group settings-3d">
                     <div class="cg-label"><b>Click/Tap Interaction:</b></div>
@@ -77,10 +87,10 @@
                         <label><input type="radio"name="starting-gen-3d"value="custom"> Draw Your Own</label>
                     </div>
                 </div>
-                <div class="control-group">
+                <div class="control-group settings-3d">
                     <div class="cg-label"><b>Cells per Row:</b></div>
-                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size"name="row-size"min="10"max="1000"aria-label="Cells per row"><span class="slider-label">Max: 1000</span></span>
-                    <span id="row-size-val"style="margin-top:-10px;">Current: 100</span>
+                    <span><span class="slider-label">Min: 10</span><input type="range"id="row-size-3d"name="row-size-3d"min="10"max="100"aria-label="Cells per row 3D"><span class="slider-label">Max: 100</span></span>
+                    <span id="row-size-val-3d"style="margin-top:-10px;">Current: 50</span>
                 </div>
                 <div class="control-group">
                     <div class="cg-label"><b>Render Speed:</b></div>
@@ -98,6 +108,7 @@
                 <p>Your browser does not support HTML Canvas. Please update it!</p>
             </canvas>
         </section>
-        <script type='module' src='/cellular-automata-simulator/js/app.js'></script> 
+        <script type='module' src='/cellular-automata-simulator/js/app.js'></script>
+        <!-- <script type='module' src='./js/app.js'></script>  -->
     </body>
 </html>

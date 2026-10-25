@@ -16,9 +16,12 @@ var applyStateToUI;
 var pauseSimulation;
 var runSimulation;
 var setAnimFrame;
+var updateCanvasLayout;
 
 var startingGen2dContainer = document.getElementById('starting-gen-2d');
 var clickTap2dContainer = document.getElementById('click-tap-2d');
+var rowSizeInput2d = document.getElementById('row-size-2d');
+var rowSizeVal2d = document.getElementById('row-size-val-2d');
 
 export function init(ctx) {
   simStates = ctx.simStates;
@@ -29,6 +32,7 @@ export function init(ctx) {
   pauseSimulation = ctx.pauseSimulation;
   runSimulation = ctx.runSimulation;
   setAnimFrame = ctx.setAnimFrame;
+  updateCanvasLayout = ctx.updateCanvasLayout;
 }
 
 function makeEmpty2dGrid(cols, rows) {
@@ -396,6 +400,10 @@ export function layout(canvas, activeConfig, dims) {
 }
 
 export function applyToUI(state) {
+  if (rowSizeInput2d) rowSizeInput2d.value = state.cellsPerRow;
+  if (rowSizeVal2d)
+    rowSizeVal2d.textContent = `Current: ${state.cellsPerRow}`;
+
   if (clickTap2dContainer) {
     var r = clickTap2dContainer.querySelector(
       `input[value="${state.clickTap}"]`,
@@ -468,6 +476,17 @@ export function bindControls() {
     clickTap2dContainer.addEventListener('change', e => {
       simStates['2d'].clickTap = e.target.value;
       saveStateToStorage();
+    });
+  }
+
+  if (rowSizeInput2d) {
+    rowSizeInput2d.addEventListener('input', e => {
+      if (rowSizeVal2d)
+        rowSizeVal2d.textContent = `Current: ${e.target.value}`;
+      simStates['2d'].cellsPerRow = parseInt(e.target.value, 10);
+
+      saveStateToStorage();
+      updateCanvasLayout();
     });
   }
 }
