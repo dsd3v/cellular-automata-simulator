@@ -25,7 +25,7 @@ BIRTH_COUNTS.forEach(function (c) {
 
 var BOX_FIT = 0.98;
 var MAX_ASPECT = 16;
-var VIEW_HEIGHT_FRACTION = 0.9;
+var VIEW_HEIGHT_FRACTION = 0.99;
 var DEFAULT_CAMERA = { yaw: 0.6, pitch: 0.5, zoom: 1 };
 var cam = { yaw: DEFAULT_CAMERA.yaw, pitch: DEFAULT_CAMERA.pitch, zoom: 1 };
 
