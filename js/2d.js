@@ -54,11 +54,11 @@ function init2dGrid(canvas, cellSize, cols, rows, config) {
     }
     if (style === 0) {
       // Random Clusters / Blobs (Clumped noise)
-      var numBlobs = Math.floor(Math.random() * 15) + 5; // 5 to 20 blobs
+      var numBlobs = Math.floor(Math.random() * 15) + 5;
       for (var b = 0; b < numBlobs; b++) {
         var centerR = Math.floor(Math.random() * rows);
         var centerC = Math.floor(Math.random() * cols);
-        var radius = Math.floor(Math.random() * 8) + 3; // Blob size
+        var radius = Math.floor(Math.random() * 8) + 3;
         for (
           var r = Math.max(0, centerR - radius);
           r < Math.min(rows, centerR + radius);
@@ -401,8 +401,7 @@ export function layout(canvas, activeConfig, dims) {
 
 export function applyToUI(state) {
   if (rowSizeInput2d) rowSizeInput2d.value = state.cellsPerRow;
-  if (rowSizeVal2d)
-    rowSizeVal2d.textContent = `Current: ${state.cellsPerRow}`;
+  if (rowSizeVal2d) rowSizeVal2d.textContent = `Current: ${state.cellsPerRow}`;
 
   if (clickTap2dContainer) {
     var r = clickTap2dContainer.querySelector(
@@ -481,8 +480,7 @@ export function bindControls() {
 
   if (rowSizeInput2d) {
     rowSizeInput2d.addEventListener('input', e => {
-      if (rowSizeVal2d)
-        rowSizeVal2d.textContent = `Current: ${e.target.value}`;
+      if (rowSizeVal2d) rowSizeVal2d.textContent = `Current: ${e.target.value}`;
       simStates['2d'].cellsPerRow = parseInt(e.target.value, 10);
 
       saveStateToStorage();
