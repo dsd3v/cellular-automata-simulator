@@ -23,23 +23,15 @@ BIRTH_COUNTS.forEach(function (c) {
   BIRTH[c] = 1;
 });
 
+// How much of the canvas the cube may occupy at its largest (1 = touching edges).
 var BOX_FIT = 0.98;
-var MAX_ASPECT = 16;
 var VIEW_HEIGHT_FRACTION = 0.97;
 var DEFAULT_CAMERA = { yaw: 0.6, pitch: 0.5, zoom: 1 };
-var cam = { yaw: DEFAULT_CAMERA.yaw, pitch: DEFAULT_CAMERA.pitch, zoom: 1 };
-
-var fitCam = { yaw: DEFAULT_CAMERA.yaw, pitch: DEFAULT_CAMERA.pitch };
-var camTouched = false;
-
-function autoCamera(aspect) {
-  var t1 = Math.max(0, Math.min(1, (aspect - 1.2) / 1.8));
-  var t2 = Math.max(0, Math.min(1, (aspect - 3) / 2.5));
-  return {
-    yaw: DEFAULT_CAMERA.yaw - 0.25 * t1 - 0.2 * t2,
-    pitch: DEFAULT_CAMERA.pitch - 0.22 * t1 - 0.18 * t2,
-  };
-}
+var cam = {
+  yaw: DEFAULT_CAMERA.yaw,
+  pitch: DEFAULT_CAMERA.pitch,
+  zoom: DEFAULT_CAMERA.zoom,
+};
 
 var simStates;
 var getCurrentSim;
@@ -247,20 +239,16 @@ function seedClusters(life, count, rMin, rMax) {
   });
 }
 
-function init3dGrid(canvas, nx, ny, nz, config) {
-  var life = createLife(nx, ny, nz);
+function init3dGrid(canvas, n, config) {
+  var life = createLife(n, n, n);
   if (config.startingGen === 'random') {
-    var ref = Math.cbrt(nx * ny * nz);
-    var spread = Math.max(nx, ny, nz) / Math.max(1, Math.min(nx, ny, nz));
-    var scaled = function (c) {
-      return Math.round(c * Math.max(1, spread * 0.7));
-    };
+    var ref = n;
     var style = Math.floor(Math.random() * 3);
     if (style === 0) {
       // A few big structures
       seedClusters(
         life,
-        scaled(3 + Math.floor(Math.random() * 2)),
+        3 + Math.floor(Math.random() * 2),
         ref * 0.14,
         ref * 0.2,
       );
@@ -268,7 +256,7 @@ function init3dGrid(canvas, nx, ny, nz, config) {
       // Many small structures
       seedClusters(
         life,
-        scaled(8 + Math.floor(Math.random() * 7)),
+        8 + Math.floor(Math.random() * 7),
         ref * 0.06,
         ref * 0.09,
       );
@@ -276,7 +264,7 @@ function init3dGrid(canvas, nx, ny, nz, config) {
       // Mixed sizes
       seedClusters(
         life,
-        scaled(5 + Math.floor(Math.random() * 4)),
+        5 + Math.floor(Math.random() * 4),
         ref * 0.07,
         ref * 0.16,
       );
@@ -391,62 +379,19 @@ function getBuffers3d(canvas) {
   return imageData;
 }
 
-function boxAspect(rx, ry, rz) {
-  var R = 0.5 * Math.sqrt(rx * rx + ry * ry + rz * rz);
-  var D0 = R * 3;
-  var cy0 = Math.cos(fitCam.yaw),
-    sy0 = Math.sin(fitCam.yaw),
-    cp0 = Math.cos(fitCam.pitch),
-    sp0 = Math.sin(fitCam.pitch);
-  var maxX = 1e-6,
-    maxY = 1e-6;
-  for (var i = 0; i < 8; i++) {
-    var px = (i & 1 ? rx : -rx) / 2;
-    var py = (i & 2 ? ry : -ry) / 2;
-    var pz = (i & 4 ? rz : -rz) / 2;
-    var x1 = px * cy0 + pz * sy0;
-    var z1 = -px * sy0 + pz * cy0;
-    var y2 = py * cp0 - z1 * sp0;
-    var z2 = py * sp0 + z1 * cp0;
-    var f = 1 / (D0 + z2);
-    maxX = Math.max(maxX, Math.abs(x1 * f));
-    maxY = Math.max(maxY, Math.abs(y2 * f));
-  }
-  return maxX / maxY;
+// The grid is always a perfect cube (cells stay cubic). Only the number of
+// cells per side comes from the slider.
+function getCubeSide(activeConfig) {
+  return Math.max(
+    MIN_SIDE,
+    Math.min(maxCellsPerRow, Math.round(activeConfig.cellsPerRow)),
+  );
 }
 
-function getBoxDims(n, width, height) {
-  var A = Math.max(0.15, Math.min(MAX_ASPECT, width / height));
-  var rx = 1,
-    ry = 1,
-    rz = 1;
-  var lo = 1,
-    hi = MAX_ASPECT,
-    mid,
-    i;
-  if (A >= boxAspect(1, 1, 1)) {
-    for (i = 0; i < 40; i++) {
-      mid = (lo + hi) / 2;
-      if (boxAspect(mid, 1, 1) < A) lo = mid;
-      else hi = mid;
-    }
-    rx = (lo + hi) / 2;
-  } else {
-    for (i = 0; i < 40; i++) {
-      mid = (lo + hi) / 2;
-      if (boxAspect(1, mid, 1) > A) lo = mid;
-      else hi = mid;
-    }
-    ry = (lo + hi) / 2;
-  }
-
-  var u = n / Math.cbrt(rx * ry * rz);
-  function dim(r) {
-    return Math.max(MIN_SIDE, Math.round(u * r));
-  }
-  return [dim(rx), dim(ry), dim(rz)];
-}
-
+// Places the cube as large as possible inside the canvas for the CURRENT
+// camera angle: projects the 8 corners, measures their bounding box, and picks
+// the focal scale F so that box just fits (BOX_FIT) in both directions. The
+// view is shifted so the bounding box is centered on the canvas.
 function getView(canvas, life) {
   var nx = life.nx,
     ny = life.ny,
@@ -454,39 +399,50 @@ function getView(canvas, life) {
   var R = 0.5 * Math.sqrt(nx * nx + ny * ny + nz * nz);
   var D0 = R * 3;
 
-  var cy0 = Math.cos(fitCam.yaw),
-    sy0 = Math.sin(fitCam.yaw),
-    cp0 = Math.cos(fitCam.pitch),
-    sp0 = Math.sin(fitCam.pitch);
-  var maxX = 1e-6,
-    maxY = 1e-6;
+  var cyw = Math.cos(cam.yaw),
+    syw = Math.sin(cam.yaw),
+    cpt = Math.cos(cam.pitch),
+    spt = Math.sin(cam.pitch);
+
+  var minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
   for (var i = 0; i < 8; i++) {
     var px = (i & 1 ? nx : -nx) / 2;
     var py = (i & 2 ? ny : -ny) / 2;
     var pz = (i & 4 ? nz : -nz) / 2;
-    var x1 = px * cy0 + pz * sy0;
-    var z1 = -px * sy0 + pz * cy0;
-    var y2 = py * cp0 - z1 * sp0;
-    var z2 = py * sp0 + z1 * cp0;
+    var x1 = px * cyw + pz * syw;
+    var z1 = -px * syw + pz * cyw;
+    var y2 = py * cpt - z1 * spt;
+    var z2 = py * spt + z1 * cpt;
     var f = 1 / (D0 + z2);
-    maxX = Math.max(maxX, Math.abs(x1 * f));
-    maxY = Math.max(maxY, Math.abs(y2 * f));
+    var sx = x1 * f,
+      sy = y2 * f;
+    if (sx < minX) minX = sx;
+    if (sx > maxX) maxX = sx;
+    if (sy < minY) minY = sy;
+    if (sy > maxY) maxY = sy;
   }
-  var F = BOX_FIT * Math.min(canvas.width / 2 / maxX, canvas.height / 2 / maxY);
+
+  var F =
+    BOX_FIT *
+    Math.min(canvas.width / (maxX - minX), canvas.height / (maxY - minY)) *
+    cam.zoom;
 
   return {
     nx: nx,
     ny: ny,
     nz: nz,
     R: R,
-    D: D0 / cam.zoom,
+    D: D0,
     F: F,
-    cx: canvas.width / 2,
-    cy: canvas.height / 2,
-    cyw: Math.cos(cam.yaw),
-    syw: Math.sin(cam.yaw),
-    cpt: Math.cos(cam.pitch),
-    spt: Math.sin(cam.pitch),
+    cx: canvas.width / 2 - (F * (minX + maxX)) / 2,
+    cy: canvas.height / 2 - (F * (minY + maxY)) / 2,
+    cyw: cyw,
+    syw: syw,
+    cpt: cpt,
+    spt: spt,
   };
 }
 
@@ -865,7 +821,6 @@ function attach3dInteraction(canvas) {
   var stroke = new Set();
 
   function clampCam() {
-    camTouched = true;
     cam.pitch = Math.max(-1.45, Math.min(1.45, cam.pitch));
     cam.zoom = Math.max(0.5, Math.min(2.2, cam.zoom));
   }
@@ -1052,27 +1007,15 @@ export function layout(canvas, activeConfig, dims) {
     canvas.height = height;
   }
 
-  var n = Math.max(
-    MIN_SIDE,
-    Math.min(maxCellsPerRow, Math.round(activeConfig.cellsPerRow)),
-  );
-  var aspect = canvas.width / canvas.height;
-  var auto = autoCamera(aspect);
-  fitCam.yaw = auto.yaw;
-  fitCam.pitch = auto.pitch;
-  if (!camTouched) {
-    cam.yaw = auto.yaw;
-    cam.pitch = auto.pitch;
-  }
-  var box = getBoxDims(n, canvas.width, canvas.height);
+  var n = getCubeSide(activeConfig);
   var life = canvas._life3d;
   if (life) {
-    if (life.nx !== box[0] || life.ny !== box[1] || life.nz !== box[2])
-      canvas._life3d = resizeLife(life, box[0], box[1], box[2]);
+    if (life.nx !== n || life.ny !== n || life.nz !== n)
+      canvas._life3d = resizeLife(life, n, n, n);
     attach3dInteraction(canvas);
     draw3d(canvas);
   } else {
-    init3dGrid(canvas, box[0], box[1], box[2], activeConfig);
+    init3dGrid(canvas, n, activeConfig);
   }
 }
 
@@ -1098,9 +1041,8 @@ export function applyToUI(state) {
 export function reset(canvas) {
   simStates['3d'] = { ...defaults };
   canvas._life3d = null;
-  camTouched = false;
-  cam.yaw = fitCam.yaw;
-  cam.pitch = fitCam.pitch;
+  cam.yaw = DEFAULT_CAMERA.yaw;
+  cam.pitch = DEFAULT_CAMERA.pitch;
   cam.zoom = DEFAULT_CAMERA.zoom;
 }
 
