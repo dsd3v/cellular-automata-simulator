@@ -12,12 +12,6 @@
   --text-color: #000000;
 }
 
-:root.dark-theme {
-  --bg-color: #1e1e1e;
-  --border-rgb: 238, 238, 238;
-  --text-color: #c8c8c8;
-}
-
 body {
   align-items: center;
   background-color: var(--bg-color);
